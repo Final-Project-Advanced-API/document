@@ -22,8 +22,8 @@ WORKDIR $APP_HOME
 # Copy the built application from the Gradle container
 COPY --from=build $APP_HOME/build/libs/*.jar app.jar
 
-# Expose port 8081
-EXPOSE 8081
+
+EXPOSE 8085
 
 # Command to run the application
 ENTRYPOINT ["java", "-jar", "/usr/app/app.jar"]
