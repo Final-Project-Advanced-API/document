@@ -10,8 +10,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Contents {
     private Integer contentId;
-    private String type; // type like h1,h2,block code
+    private String contentType; // type like h1,h2,block code
     private Props props;
-    private List<Content> content;
+    private List<BlockContents> blockContents;
     private List<String> children;
 }

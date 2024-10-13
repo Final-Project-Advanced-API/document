@@ -12,4 +12,6 @@ public interface DocumentService {
     DocumentEntity getDocument(UUID documentId);
     Void deleteDocument(UUID documentId);
     DocumentEntity updateDocument(UUID documentId,DocumentRequest documentRequest);
+    DocumentEntity updateStatusDocument(UUID documentId, Boolean isPrivate);
+
 }

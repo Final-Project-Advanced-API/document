@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Content {
+public class BlockContents {
     private String type;  // text type
     private String text;
     private Object styles;

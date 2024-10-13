@@ -11,13 +11,9 @@ import org.example.documentservice.repository.DocumentRepository;
 import org.example.documentservice.service.DocumentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @AllArgsConstructor
@@ -61,28 +57,38 @@ public class DocumentServiceImp implements DocumentService {
         for(ContentsRequest contentsRequest : documentRequest.getContentsRequests()){
             boolean contentExists = false;
             for(Contents existContent : documentEntity.getContents()){
+                // update content
                 if(existContent.getContentId().equals(contentsRequest.getContentId())){
-                    existContent.setType(contentsRequest.getType());
+                    existContent.setContentType(contentsRequest.getContentType());
                     existContent.setProps(contentsRequest.getProps());
-                    existContent.setContent(contentsRequest.getContent());
+                    existContent.setBlockContents(contentsRequest.getBlockContents());
                     existContent.setChildren(contentsRequest.getChildren());
                     contentExists = true;
-                    break; // Exit loop after updating
+                    break;
                 }
             }
+            // Add new content
             if(!contentExists){
                 Contents newContent = new Contents();
                 newContent.setContentId(contentsRequest.getContentId());
-                newContent.setType(contentsRequest.getType());
+                newContent.setContentType(contentsRequest.getContentType());
                 newContent.setProps(contentsRequest.getProps());
-                newContent.setContent(contentsRequest.getContent());
+                newContent.setBlockContents(contentsRequest.getBlockContents());
                 newContent.setChildren(contentsRequest.getChildren());
-                documentEntity.getContents().add(newContent); // Add new content to the list
+                documentEntity.getContents().add(newContent);
             }
         }
-        modelMapper.map(documentEntity, documentRequest);
-        DocumentEntity updatedDocument = documentRepository.save(documentEntity);
-        System.out.println("Document id " + documentId + " updated");
-        return updatedDocument; // Return the updated document
+        return documentRepository.save(modelMapper.map(documentEntity, DocumentEntity.class));
     }
+
+    @Override
+    public DocumentEntity updateStatusDocument(UUID documentId, Boolean isPrivate) {
+        DocumentEntity documentEntity = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
+        documentEntity.setIsPrivate(isPrivate);
+        documentEntity.setUpdatedAt(LocalDateTime.now());
+        documentRepository.save(documentEntity);
+        return documentEntity;
+    }
+
+
 }
