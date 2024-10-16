@@ -1,11 +1,6 @@
 package org.example.documentservice.model.request;
+import lombok.*;
 
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -14,10 +9,11 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class DocumentRequest {
     private UUID workspaceId;
     private String title;
-    private List<ContentsRequest> contentsRequests;
+    private List<Object> contents;
     private Boolean isPrivate;
     private Boolean isDeleted;
     private LocalDateTime createdAt;

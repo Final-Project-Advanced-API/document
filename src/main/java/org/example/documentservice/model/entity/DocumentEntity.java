@@ -1,7 +1,6 @@
 package org.example.documentservice.model.entity;
-import jakarta.validation.constraints.NotBlank;
+
 import lombok.*;
-import org.example.documentservice.model.request.Contents;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -21,7 +20,7 @@ public class DocumentEntity {
     private UUID documentId;
     private UUID workspaceId;
     private String title;
-    private List<Contents> contents;
+    private List<Object> contents;
     private Boolean isPrivate;
     private Boolean isDeleted;
     @CreatedDate

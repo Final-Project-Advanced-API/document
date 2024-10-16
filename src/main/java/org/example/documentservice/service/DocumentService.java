@@ -14,4 +14,8 @@ public interface DocumentService {
     DocumentEntity updateDocument(UUID documentId,DocumentRequest documentRequest);
     DocumentEntity updateStatusDocument(UUID documentId, Boolean isPrivate);
 
+    DocumentEntity updateStatusDelete(UUID documentId, Boolean isDelete);
+
+    List<DocumentEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
+
 }

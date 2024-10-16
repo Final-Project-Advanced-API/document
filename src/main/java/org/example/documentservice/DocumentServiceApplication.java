@@ -22,7 +22,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
         type = SecuritySchemeType.OAUTH2,
         flows = @OAuthFlows(
                 password = @OAuthFlow(
-                        tokenUrl = "https://keycloak.jelay.site/realms/stack-note/protocol/openid-connect/token"
+                        tokenUrl = "https://keycloak.jelay.site/realms/stack-notes/protocol/openid-connect/token"
                 )
         )
 )

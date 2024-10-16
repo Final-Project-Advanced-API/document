@@ -3,14 +3,12 @@ package org.example.documentservice.service.serviceimp;
 import lombok.AllArgsConstructor;
 import org.example.documentservice.exception.NotFoundException;
 import org.example.documentservice.model.entity.DocumentEntity;
-import org.example.documentservice.model.request.Contents;
-
-import org.example.documentservice.model.request.ContentsRequest;
 import org.example.documentservice.model.request.DocumentRequest;
 import org.example.documentservice.repository.DocumentRepository;
 import org.example.documentservice.service.DocumentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -23,12 +21,10 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public DocumentEntity createDocument(DocumentRequest documentRequest) {
-//        AtomicInteger contentId = new AtomicInteger(1);
         DocumentEntity documentEntity = modelMapper.map(documentRequest, DocumentEntity.class);
         documentEntity.setDocumentId(UUID.randomUUID());
         documentEntity.setCreatedAt(LocalDateTime.now());
         documentEntity.setUpdatedAt(LocalDateTime.now());
-//        documentEntity.getContents().forEach(content -> content.setContentId(contentId.getAndIncrement()));
         return documentRepository.save(documentEntity);
     }
 
@@ -54,31 +50,8 @@ public class DocumentServiceImp implements DocumentService {
         DocumentEntity documentEntity = documentRepository.findById(documentId)
                 .orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
         documentEntity.setUpdatedAt(LocalDateTime.now());
-        for(ContentsRequest contentsRequest : documentRequest.getContentsRequests()){
-            boolean contentExists = false;
-            for(Contents existContent : documentEntity.getContents()){
-                // update content
-                if(existContent.getContentId().equals(contentsRequest.getContentId())){
-                    existContent.setContentType(contentsRequest.getContentType());
-                    existContent.setProps(contentsRequest.getProps());
-                    existContent.setBlockContents(contentsRequest.getBlockContents());
-                    existContent.setChildren(contentsRequest.getChildren());
-                    contentExists = true;
-                    break;
-                }
-            }
-            // Add new content
-            if(!contentExists){
-                Contents newContent = new Contents();
-                newContent.setContentId(contentsRequest.getContentId());
-                newContent.setContentType(contentsRequest.getContentType());
-                newContent.setProps(contentsRequest.getProps());
-                newContent.setBlockContents(contentsRequest.getBlockContents());
-                newContent.setChildren(contentsRequest.getChildren());
-                documentEntity.getContents().add(newContent);
-            }
-        }
-        return documentRepository.save(modelMapper.map(documentEntity, DocumentEntity.class));
+        modelMapper.map(documentRequest, documentEntity);
+        return documentRepository.save(documentEntity);
     }
 
     @Override
@@ -90,5 +63,18 @@ public class DocumentServiceImp implements DocumentService {
         return documentEntity;
     }
 
+    @Override
+    public DocumentEntity updateStatusDelete(UUID documentId, Boolean isDelete) {
+        DocumentEntity documentEntity = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
+        documentEntity.setIsDeleted(isDelete);
+        documentEntity.setUpdatedAt(LocalDateTime.now());
+        documentRepository.save(documentEntity);
+        return documentEntity;
+    }
+
+    @Override
+    public List<DocumentEntity> getAllDocumentByWorkspaceId(UUID workspaceId) {
+        return documentRepository.findAllByWorkspaceId(workspaceId).orElseThrow(() -> new NotFoundException("Find document by workspace id "+workspaceId+ "not found"));
+    }
 
 }
