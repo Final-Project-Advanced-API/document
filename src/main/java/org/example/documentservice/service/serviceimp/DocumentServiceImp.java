@@ -38,9 +38,10 @@ public class DocumentServiceImp implements DocumentService {
     }
 
     @Override
-    public Void deleteDocument(UUID documentId) {
-        DocumentEntity document = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
-        documentRepository.delete(document);
+    public Void deleteDocument(List<UUID> documentId) {
+        for (UUID uuid : documentId){
+            documentRepository.deleteById(uuid);
+        }
         return null;
     }
 
@@ -74,6 +75,12 @@ public class DocumentServiceImp implements DocumentService {
     @Override
     public List<DocumentEntity> getAllDocumentByWorkspaceId(UUID workspaceId) {
         return documentRepository.findAllByWorkspaceId(workspaceId).orElseThrow(() -> new NotFoundException("Find document by workspace id "+workspaceId+ "not found"));
+    }
+
+    @Override
+    public Void deleteDocumentByWorkspaceId(UUID workspaceId) {
+        documentRepository.deleteByWorkspaceId(workspaceId).orElseThrow(() -> new NotFoundException("Delete document by workspace id "+workspaceId+ "not found"));
+        return null;
     }
 
 }
