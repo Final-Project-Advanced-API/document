@@ -10,12 +10,10 @@ public interface DocumentService {
     DocumentEntity createDocument(DocumentRequest documentRequest);
     List<DocumentEntity> getAllDocument();
     DocumentEntity getDocument(UUID documentId);
-    Void deleteDocument(UUID documentId);
+    Void deleteDocument(List<UUID> documentId);
     DocumentEntity updateDocument(UUID documentId,DocumentRequest documentRequest);
     DocumentEntity updateStatusDocument(UUID documentId, Boolean isPrivate);
-
     DocumentEntity updateStatusDelete(UUID documentId, Boolean isDelete);
-
     List<DocumentEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
-
+    Void deleteDocumentByWorkspaceId(UUID workspaceId);
 }

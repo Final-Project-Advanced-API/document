@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface DocumentRepository extends MongoRepository<DocumentEntity, UUID> {
     Optional<List<DocumentEntity>> findAllByWorkspaceId(UUID workspaceId);
+    Optional<List<DocumentEntity>> deleteByWorkspaceId(UUID workspaceId);
 }
