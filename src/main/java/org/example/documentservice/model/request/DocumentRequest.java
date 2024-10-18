@@ -1,7 +1,6 @@
 package org.example.documentservice.model.request;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +15,4 @@ public class DocumentRequest {
     private List<Object> contents;
     private Boolean isPrivate;
     private Boolean isDeleted;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

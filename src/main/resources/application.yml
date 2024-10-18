@@ -7,6 +7,10 @@ spring:
       username: mongodb
       password: 2003
       database: stacknote
+  # elasticsearch
+  elasticsearch:
+    rest:
+      uris: http://localhost:9200
 
   #Resource server configuration
   security:
