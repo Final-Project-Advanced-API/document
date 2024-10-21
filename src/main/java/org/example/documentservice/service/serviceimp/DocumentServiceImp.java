@@ -15,11 +15,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-@AllArgsConstructor
 public class DocumentServiceImp implements DocumentService {
     private final DocumentRepository documentRepository;
     private final DocumentElasticRepository documentElasticRepository;
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+
+    public DocumentServiceImp(DocumentRepository documentRepository, DocumentElasticRepository documentElasticRepository, ModelMapper modelMapper) {
+        this.documentRepository = documentRepository;
+        this.documentElasticRepository = documentElasticRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public DocumentEntity createDocument(DocumentRequest documentRequest) {
@@ -44,28 +49,28 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public DocumentElasticEntity getDocument(UUID documentId) {
-        return documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
+        return documentElasticRepository.findById(documentId.toString()).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
     }
 
     @Override
     public Void deleteDocument(List<UUID> documentId) {
         for (UUID uuid : documentId) {
             documentRepository.deleteById(uuid);
-            documentElasticRepository.deleteById(uuid);
+            documentElasticRepository.deleteById(uuid.toString());
         }
         return null;
     }
 
     @Override
     public Optional<DocumentElasticEntity> updateDocument(UUID documentId, DocumentRequest documentRequest) {
-        Optional<DocumentElasticEntity> elasticDoc = documentElasticRepository.findById(documentId);
+        Optional<DocumentElasticEntity> elasticDoc = documentElasticRepository.findById(documentId.toString());
         elasticDoc.orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
         DocumentElasticEntity existDocument = elasticDoc.get();
         existDocument.setTitle(documentRequest.getTitle());
         existDocument.setIsDeleted(documentRequest.getIsDeleted());
         existDocument.setIsPrivate(documentRequest.getIsPrivate());
         existDocument.setContents(documentRequest.getContents());
-        existDocument.setUpdatedAt(LocalDateTime.now().toString());
+        existDocument.setUpdatedAt(LocalDateTime.now());
         documentElasticRepository.save(existDocument);
         DocumentEntity existDoc = documentRepository.findById(documentId)
                 .orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
@@ -80,9 +85,9 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public DocumentElasticEntity updateStatusDocument(UUID documentId, Boolean isPrivate) {
-        DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
+        DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId.toString()).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
         existElasticDoc.setIsPrivate(isPrivate);
-        existElasticDoc.setUpdatedAt(LocalDateTime.now().toString());
+        existElasticDoc.setUpdatedAt(LocalDateTime.now());
         documentElasticRepository.save(existElasticDoc);
         DocumentEntity existDoc = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
         existDoc.setIsPrivate(isPrivate);
@@ -93,9 +98,9 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public DocumentElasticEntity updateStatusDelete(UUID documentId, Boolean isDelete) {
-        DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
+        DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId.toString()).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
         existElasticDoc.setIsDeleted(isDelete);
-        existElasticDoc.setUpdatedAt(LocalDateTime.now().toString());
+        existElasticDoc.setUpdatedAt(LocalDateTime.now());
         documentElasticRepository.save(existElasticDoc);
         DocumentEntity existDoc = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
         existDoc.setIsDeleted(isDelete);

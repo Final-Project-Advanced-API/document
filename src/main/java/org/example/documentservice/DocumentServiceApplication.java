@@ -29,8 +29,8 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
                 )
         )
 )
-@EnableDiscoveryClient
 @EnableElasticsearchRepositories(basePackages = "org.example.documentservice.repository")
+@EnableDiscoveryClient
 public class DocumentServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(DocumentServiceApplication.class, args);

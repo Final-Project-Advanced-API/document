@@ -5,6 +5,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 @ToString
 public class DocumentElasticEntity {
     @Id
-    private UUID documentId;
+    private String documentId;
     @Field(type = FieldType.Keyword)
     private UUID workspaceId;
     @Field(type = FieldType.Text)
@@ -28,8 +29,8 @@ public class DocumentElasticEntity {
     @Field(type = FieldType.Boolean)
     private Boolean isDeleted;
     @Field(type = FieldType.Date)
-    private String createdAt;
+    private LocalDateTime createdAt;
     @Field(type = FieldType.Date)
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 }
 

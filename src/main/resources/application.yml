@@ -10,7 +10,7 @@ spring:
   elasticsearch:
     uris: http://165.22.244.160:9200
     username: elastic
-    password: HevyM4Le47gbr0JlJQYp
+    password: Jn63PiysD4axX-2*-qxP
     connection-timeout: 10s
     socket-timeout: 30s
 
@@ -52,5 +52,7 @@ springdoc:
 logging:
   level:
     org.springframework.web: debug
+    org.springframework.data.elasticsearch: DEBUG
+    org.elasticsearch: DEBUG
 server:
   port: 8085
