@@ -5,14 +5,11 @@ spring:
     mongodb:
       uri: mongodb://188.166.255.182:28085
       database: document-db
-
   # elasticsearch
   elasticsearch:
     uris: http://188.166.255.182:9200
     username: elastic
     password: 3pQHuGDxQEe0JXtivdb+
-    connection-timeout: 10s
-    socket-timeout: 30s
 
   #Resource server configuration
   security:

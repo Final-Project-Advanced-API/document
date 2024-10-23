@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @SpringBootApplication
 @OpenAPIDefinition(
@@ -17,7 +16,6 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
         info = @Info(
                 title = "Document-Service",
                 description = "Stack-Notes Api"
-
         )
 )
 @SecurityScheme(
@@ -29,7 +27,6 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
                 )
         )
 )
-@EnableElasticsearchRepositories(basePackages = "org.example.documentservice.repository")
 @EnableDiscoveryClient
 public class DocumentServiceApplication {
     public static void main(String[] args) {

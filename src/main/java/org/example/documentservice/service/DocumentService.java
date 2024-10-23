@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DocumentService {
-    DocumentEntity createDocument(DocumentRequest documentRequest);
+    DocumentElasticEntity createDocument(DocumentRequest documentRequest);
     List<DocumentElasticEntity> getAllDocument();
     DocumentElasticEntity getDocument(UUID documentId);
     Void deleteDocument(List<UUID> documentId);
