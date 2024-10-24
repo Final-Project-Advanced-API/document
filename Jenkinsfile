@@ -15,7 +15,7 @@ pipeline {
         ARGOCD_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJhZG1pbjphcGlLZXkiLCJuYmYiOjE3MjkxMjk0MTgsImlhdCI6MTcyOTEyOTQxOCwianRpIjoiYzI4YzE2NzctODQ4MC00NDYxLWEwYzAtNTU3NThiMGFlNmZhIn0.-BXA3rn_R4kRtCnl0UhClX1dAjPfeLG1nKZvyGdzg8s' // Make sure this token is on a single line
         TELEGRAM_BOT_TOKEN = '7997280208:AAHi1EBBIMt8TPMvyPRqFw45q9Ua9I9amCw'
         TELEGRAM_CHAT_ID = '-1002458427919'
-        EMAIL_RECIPIENTS = 'mengsoklay2222@gmail.com,yoiryivong@gmail.com,vornnaro202a@gmail.com,seablundy@gmail.com,chanseyha123456789@gmail.com'
+        EMAIL_RECIPIENTS = 'mengsoklay2222@gmail.com,yoiryivong@gmail.com,vornnaro202a@gmail.com,seablundy@gmail.com,chanseyha123456789@gmail.com,soy.tola9999@gmail.com'
     }
 
     stages {
@@ -116,11 +116,22 @@ pipeline {
         success {
             script {
                 echo "🚀 Build successful, notifying via email..."
-                emailext (
+                 emailext (
                     to: "${EMAIL_RECIPIENTS}",
                     subject: "Build Success: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
-                    body: "<b>Stage</b>: ✅ Document-Service \
-                           %0A<b>Status</b>: This document-Service was built successfully 🚀",
+                    body: """
+                        Hello Team,<br><br>
+                
+                        We are thrilled to inform you that the recent build has completed successfully! 🎉👨‍💻<br><br>
+                
+                        <b>Stage</b>: ✅ Document-Service 🤗🌟<br>
+                        <b>Status</b>: The document-Service was built successfully and is ready for the next steps 🚀<br><br>
+                
+                        Thank you!<br><br>
+                
+                        Best regards,<br>
+                        DevOps Team
+                        """,
                     mimeType: 'text/html'
                 )
                 
