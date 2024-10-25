@@ -15,6 +15,7 @@ pipeline {
         ARGOCD_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJhZG1pbjphcGlLZXkiLCJuYmYiOjE3MjkxMjk0MTgsImlhdCI6MTcyOTEyOTQxOCwianRpIjoiYzI4YzE2NzctODQ4MC00NDYxLWEwYzAtNTU3NThiMGFlNmZhIn0.-BXA3rn_R4kRtCnl0UhClX1dAjPfeLG1nKZvyGdzg8s' // Make sure this token is on a single line
         TELEGRAM_BOT_TOKEN = '7997280208:AAHi1EBBIMt8TPMvyPRqFw45q9Ua9I9amCw'
         TELEGRAM_CHAT_ID = '-1002458427919'
+        EMAIL_RECIPIENTS = 'mengsoklay2222@gmail.com,yoiryivong@gmail.com,vornnaro202a@gmail.com,seablundy@gmail.com,chanseyha123456789@gmail.com,soy.tola9999@gmail.com'
     }
 
     stages {
@@ -114,13 +115,33 @@ pipeline {
     post {
         success {
             script {
-                echo "🚀 Build successful, notifying via Telegram..."
+                echo "🚀 Build successful, notifying via email..."
+                 emailext (
+                    to: "${EMAIL_RECIPIENTS}",
+                    subject: "Build Success: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                    body: """
+                        Hello Team,<br><br>
+                
+                        We are thrilled to inform you that the recent build has completed successfully! 🎉👨‍💻<br><br>
+                
+                        <b>Stage</b>: ✅ Document-Service 🤗🌟<br>
+                        <b>Status</b>: The document-Service was built successfully and is ready for the next steps 🚀<br><br>
+                
+                        Thank you!<br><br>
+                
+                        Best regards,<br>
+                        DevOps Team
+                        """,
+                    mimeType: 'text/html'
+                )
+                
+                echo "🚀 Sending Telegram notification..."
                 sh """
                 curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage \
                     -d chat_id=${TELEGRAM_CHAT_ID} \
                     -d parse_mode="HTML" \
-                    -d text="<b>Stage</b>: ✅ Document-service \
-                    %0A<b>Status</b>: This Document-service was built successfully 🚀"
+                    -d text="<b>Stage</b>: ✅ Document-Service \
+                    %0A<b>Status</b>: This document-Service was built successfully 🚀"
                 """
             }
         }
@@ -132,11 +153,20 @@ pipeline {
                 curl -s -X POST https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage \
                     -d chat_id=${TELEGRAM_CHAT_ID} \
                     -d parse_mode="HTML" \
-                    -d text="<b>Stage</b>: ❌ Document-service \
-                    %0A<b>Status</b>: This document-service build failed 💥"
+                    -d text="<b>Stage</b>: ❌ Document-Service \
+                    %0A<b>Status</b>: This document-Service build failed 💥"
                 """
+                 echo "🚀 Build successful, notifying via email..."
+                emailext (
+                    to: "${EMAIL_RECIPIENTS}",
+                    subject: "Build Success: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
+                    body: "<b>Stage</b>: ❌ Document-Service \
+                           %0A<b>Status</b>: This document-Service build failed 💥",
+                    mimeType: 'text/html'
+                )
             }
         }
+
 
         always {
             echo "🚀 Cleanup after build..."
