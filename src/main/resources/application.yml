@@ -7,9 +7,11 @@ spring:
       database: document-db
   # elasticsearch
   elasticsearch:
-    uris: http://188.166.255.182:9200
-    username: elastic
-    password: 3pQHuGDxQEe0JXtivdb+
+    uris: http://209.38.56.20:9200
+    username: stacknote
+    password: stacknote
+    connection-timeout: 10s
+    socket-timeout: 30s
 
   #Resource server configuration
   security:
@@ -32,7 +34,7 @@ keycloak:
 eureka:
   client:
     service-url:
-      defaultZone: https://eureka.jelay.site/eureka/  # Adjust for your Eureka server URL
+      defaultZone: https://eureka.jelay.site/eureka/
   instance:
     prefer-ip-address: true
 

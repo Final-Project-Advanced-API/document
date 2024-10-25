@@ -1,11 +1,8 @@
 package org.example.documentservice.model.entity;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
 import lombok.*;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +17,7 @@ public class DocumentElasticEntity {
     private UUID documentId;
     @Field(type = FieldType.Keyword)
     private UUID workspaceId;
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, fielddata = true)
     private String title;
     @Field(type = FieldType.Object)
     private List<Object> contents;
@@ -28,9 +25,9 @@ public class DocumentElasticEntity {
     private Boolean isPrivate;
     @Field(type = FieldType.Boolean)
     private Boolean isDeleted;
-    @Field(type = FieldType.Date)
-    private LocalDate createdAt;
-    @Field(type = FieldType.Date)
-    private LocalDate updatedAt;
+    @Field(type = FieldType.Date, format = DateFormat.strict_date_hour_minute_second_millis)
+    private LocalDateTime createdAt;
+    @Field(type = FieldType.Date, format = DateFormat.strict_date_hour_minute_second_millis)
+    private LocalDateTime updatedAt;
 }
 
