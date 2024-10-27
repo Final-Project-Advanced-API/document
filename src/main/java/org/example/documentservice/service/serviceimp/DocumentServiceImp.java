@@ -91,17 +91,7 @@ public class DocumentServiceImp implements DocumentService {
 
     @Override
     public DocumentElasticEntity getDocument(UUID documentId) {
-        DocumentElasticEntity elasticDocument = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-        ApiResponse<UserWorkspaceResponse> workspace;
-        try {
-            workspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), elasticDocument.getWorkspaceId());
-            if (workspace.getPayload() == null) {
-                throw new NotFoundException("Document id " + elasticDocument.getWorkspaceId() + " not found!");
-            }
-        } catch (FeignException.NotFound e) {
-            throw new NotFoundException("Document id " + elasticDocument.getWorkspaceId() + " not found!");
-        }
-        return elasticDocument;
+        return documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
     }
 
     @Override
@@ -217,7 +207,6 @@ public class DocumentServiceImp implements DocumentService {
                     throw new NotFoundException("Document id " + document.getDocumentId() + " not found!");
                 }
             } catch (FeignException.NotFound ignored) {
-
             }
         }
         return docs;
@@ -239,7 +228,7 @@ public class DocumentServiceImp implements DocumentService {
             throw new NotFoundException("Document id " + lstDoc.getFirst().getWorkspaceId() + " not found!");
         }
         if (!workspace.getPayload().getIsAdmin()) {
-            throw new ForbiddenException("User not allowed to update this document!");
+            throw new ForbiddenException("User not allowed to delete this document!");
         }
         documentRepository.deleteByWorkspaceId(workspaceId);
         documentElasticRepository.deleteByWorkspaceId(workspaceId);

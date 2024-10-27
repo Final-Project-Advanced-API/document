@@ -51,7 +51,7 @@ public class DocumentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/{documentId}")
+    @GetMapping("/by-id/{documentId}")
     @Operation(summary = "get document")
     public ResponseEntity<?> getDocument(@PathVariable UUID documentId) {
         ApiResponse<?> response = ApiResponse.builder()
