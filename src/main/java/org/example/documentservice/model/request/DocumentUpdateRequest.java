@@ -10,5 +10,4 @@ import java.util.List;
 public class DocumentUpdateRequest {
     private String title;
     private List<Object> contents;
-
 }

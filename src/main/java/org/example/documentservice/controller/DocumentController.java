@@ -51,7 +51,7 @@ public class DocumentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/by-id/{documentId}")
+    @GetMapping("/{documentId}")
     @Operation(summary = "get document")
     public ResponseEntity<?> getDocument(@PathVariable UUID documentId) {
         ApiResponse<?> response = ApiResponse.builder()
@@ -142,4 +142,16 @@ public class DocumentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/{documentId}/publish")
+    @Operation(summary = "get publish document")
+    public ResponseEntity<?> getPublishDocument(@PathVariable UUID documentId) {
+        ApiResponse<?> response = ApiResponse.builder()
+                .message("Get publish document successfully")
+                .payload(documentService.getPublishDocument(documentId))
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SortBy {
     CREATED_AT("createdAt"),
-    UPDATED_AT("updatedAt");
+    UPDATED_AT("updatedAt"),
+    PRIVATE("isPrivate");
     private final String fieldName;
 }

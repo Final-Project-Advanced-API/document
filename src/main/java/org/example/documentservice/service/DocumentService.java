@@ -20,4 +20,5 @@ public interface DocumentService {
     Void updateStatusDelete(UUID documentId, Boolean isDelete);
     List<DocumentElasticEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
     Void deleteDocumentByWorkspaceId(UUID workspaceId);
+    DocumentElasticEntity getPublishDocument(UUID documentId);
 }
