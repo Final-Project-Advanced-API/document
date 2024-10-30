@@ -1,9 +1,7 @@
 package org.example.documentservice.model.entity;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +17,6 @@ public class DocumentElasticEntity {
 	private UUID documentId;
 	@Field(type = FieldType.Keyword)
 	private UUID workspaceId;
-	@Field(type = FieldType.Keyword)
 	private String title;
 	@Field(type = FieldType.Object)
 	private List<Object> contents;

@@ -1,6 +1,7 @@
 package org.example.documentservice.service;
 
 import org.example.documentservice.model.entity.DocumentElasticEntity;
+import org.example.documentservice.model.entity.DocumentEntity;
 import org.example.documentservice.model.enums.SortBy;
 import org.example.documentservice.model.enums.SortDirection;
 import org.example.documentservice.model.request.DocumentRequest;
@@ -21,4 +22,7 @@ public interface DocumentService {
     List<DocumentElasticEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
     Void deleteDocumentByWorkspaceId(UUID workspaceId);
     DocumentElasticEntity getPublishDocument(UUID documentId);
+
+    List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection);
+
 }

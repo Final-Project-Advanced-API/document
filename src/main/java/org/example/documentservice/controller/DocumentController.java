@@ -2,6 +2,7 @@ package org.example.documentservice.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.example.documentservice.model.enums.SortBy;
@@ -27,7 +28,7 @@ public class DocumentController {
 
     @PostMapping
     @Operation(summary = "create document")
-    public ResponseEntity<?> createDocument(@RequestBody DocumentRequest documentRequest) {
+    public ResponseEntity<?> createDocument(@RequestBody @Valid DocumentRequest documentRequest) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Create document successfully")
                 .payload(documentService.createDocument(documentRequest))
@@ -79,7 +80,7 @@ public class DocumentController {
 
     @PutMapping("/{documentId}")
     @Operation(summary = "update document")
-    public ResponseEntity<?> updateDocument(@PathVariable UUID documentId, @RequestBody DocumentUpdateRequest DocumentUpdateRequest) {
+    public ResponseEntity<?> updateDocument(@PathVariable UUID documentId, @RequestBody @Valid DocumentUpdateRequest DocumentUpdateRequest) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Update document successfully")
                 .payload(documentService.updateDocument(documentId, DocumentUpdateRequest))
@@ -90,7 +91,7 @@ public class DocumentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{documentId}/status")
+    @PutMapping("/{documentId}/status-private")
     @Operation(summary = "update status private or public document")
     public ResponseEntity<?> updateStatusDocument(@PathVariable UUID documentId, @RequestParam(defaultValue = "true") Boolean isPrivate) {
         ApiResponse<?> response = ApiResponse.builder()
@@ -103,8 +104,8 @@ public class DocumentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{documentId}/status-delete")
-    @Operation(summary = "update status delete or not document")
+    @PutMapping("/{documentId}/status-trash")
+    @Operation(summary = "update status trash or not document")
     public ResponseEntity<?> updateStatusDelete(@PathVariable UUID documentId, @RequestParam(defaultValue = "false") Boolean isDelete) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Update status document successfully")
@@ -148,6 +149,19 @@ public class DocumentController {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Get publish document successfully")
                 .payload(documentService.getPublishDocument(documentId))
+                .status(HttpStatus.OK)
+                .statusCode(HttpStatus.OK.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-trash")
+    @Operation(summary = "get all trash document")
+    public ResponseEntity<?> getAllTrashDocument(@RequestParam(defaultValue = "1") @Min(value = 1, message = "Must bigger than 0") Integer pageNo, @RequestParam(defaultValue = "5") @Min(value = 1, message = "Must bigger than 0") Integer pageSize, @RequestParam SortBy sortBy, SortDirection sortDirection) {
+        ApiResponse<?> response = ApiResponse.builder()
+                .message("Get all trash document successfully")
+                .payload(documentService.getAllTrashDocument(pageNo,pageSize,sortBy,sortDirection))
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())

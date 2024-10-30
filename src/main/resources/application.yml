@@ -3,15 +3,13 @@ spring:
     name: document-service
   data:
     mongodb:
-      uri: mongodb://188.166.255.182:28085
-      database: document-db
+      uri: mongodb://localhost:27017
+      database: stacknot
+      username: mongodb
+      password: 2003
   # elasticsearch
   elasticsearch:
-    uris: http://209.38.56.20:9200
-    username: stacknote
-    password: stacknote
-    connection-timeout: 10s
-    socket-timeout: 30s
+    uris: http://localhost:9200
 
   #Resource server configuration
   security:
