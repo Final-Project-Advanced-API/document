@@ -1,7 +1,6 @@
 package org.example.documentservice.service;
 
 import org.example.documentservice.model.entity.DocumentElasticEntity;
-import org.example.documentservice.model.entity.DocumentEntity;
 import org.example.documentservice.model.enums.SortBy;
 import org.example.documentservice.model.enums.SortDirection;
 import org.example.documentservice.model.request.DocumentRequest;
@@ -12,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DocumentService {
-    DocumentElasticEntity createDocument(DocumentRequest documentRequest);
+    Object createDocument(DocumentRequest documentRequest);
     List<DocumentElasticEntity> getAllDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection);
     DocumentElasticEntity getDocument(UUID documentId);
     Void deleteDocument(UUID documentId);
