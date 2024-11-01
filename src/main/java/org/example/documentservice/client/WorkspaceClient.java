@@ -8,9 +8,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.UUID;
 
-@FeignClient(name = "workspace-service", url = "http://localhost:8084",fallback = WorkspaceClientFallback.class)
+@FeignClient(name = "workspace-service", url = "${workspace-service.url}", fallback = WorkspaceClientFallback.class)
 @Primary
 public interface WorkspaceClient {
 	@GetMapping("/api/v1/userworkspaces")

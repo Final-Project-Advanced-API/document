@@ -59,7 +59,7 @@ public class DocumentServiceImp implements DocumentService {
 	@Override
 	public DocumentElasticEntity createDocument(DocumentRequest documentRequest) {
 		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), documentRequest.getWorkspaceId());
-		if (workspace.getPayload() == null) {
+		if (workspace == null) {
 			throw new ForbiddenException("You don't have permission to access this workspace!");
 		}
 		if (!workspace.getPayload().getIsAdmin()) {
@@ -82,7 +82,7 @@ public class DocumentServiceImp implements DocumentService {
 		UUID currentUserId = UUID.fromString(getCurrentUser());
 		Sort.Direction direction = sortDirection == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
 		String sortField = sortBy.getFieldName();
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(direction, sortField));
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,direction,sortField);
 		Page<DocumentElasticEntity> page = documentElasticRepository.findAll(pageable);
 		List<DocumentElasticEntity> lstDocs = new ArrayList<>();
 		for (DocumentElasticEntity document : page.getContent()) {

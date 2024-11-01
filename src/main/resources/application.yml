@@ -3,13 +3,16 @@ spring:
     name: document-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017
-      database: stacknote
-      username: mongodb
-      password: 2003
+      uri: mongodb://188.166.255.182:28085
+      database: document-db
+
   # elasticsearch
   elasticsearch:
-    uris: http://localhost:9200
+    uris: http://209.38.56.20:9200
+    username: stacknote
+    password: stacknote
+    connection-timeout: 10s
+    socket-timeout: 30s
 
   #Resource server configuration
   security:
@@ -59,6 +62,10 @@ eureka:
       defaultZone: https://eureka.jelay.site/eureka/
   instance:
     prefer-ip-address: true
+
+# feign client
+workspace-service:
+  url: https://workspace-service.jelay.site
 
 # Swagger configuration
 springdoc:

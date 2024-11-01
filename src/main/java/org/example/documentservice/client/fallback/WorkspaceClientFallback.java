@@ -1,5 +1,4 @@
 package org.example.documentservice.client.fallback;
-
 import org.example.documentservice.client.WorkspaceClient;
 import org.example.documentservice.model.response.ApiResponse;
 import org.example.documentservice.model.response.UserWorkspaceResponse;

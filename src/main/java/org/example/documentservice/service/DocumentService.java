@@ -21,7 +21,6 @@ public interface DocumentService {
     List<DocumentElasticEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
     Void deleteDocumentByWorkspaceId(UUID workspaceId);
     DocumentElasticEntity getPublishDocument(UUID documentId);
-
     List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection);
 
 }
