@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DocumentService {
-    DocumentElasticEntity createDocument(DocumentRequest documentRequest);
+    Object createDocument(DocumentRequest documentRequest);
     List<DocumentElasticEntity> getAllDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection);
     DocumentElasticEntity getDocument(UUID documentId);
     Void deleteDocument(UUID documentId);
@@ -21,4 +21,6 @@ public interface DocumentService {
     List<DocumentElasticEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
     Void deleteDocumentByWorkspaceId(UUID workspaceId);
     DocumentElasticEntity getPublishDocument(UUID documentId);
+    List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection);
+
 }

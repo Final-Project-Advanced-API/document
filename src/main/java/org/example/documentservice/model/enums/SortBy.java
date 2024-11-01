@@ -7,6 +7,7 @@ import lombok.Getter;
 public enum SortBy {
     CREATED_AT("createdAt"),
     UPDATED_AT("updatedAt"),
+    TITLE("title"),
     PRIVATE("isPrivate");
     private final String fieldName;
 }

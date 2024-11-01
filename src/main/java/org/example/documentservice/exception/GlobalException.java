@@ -89,5 +89,14 @@ public class GlobalException{
                 .build();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
+    @ExceptionHandler(InternalServerException.class)
+    public ResponseEntity<ExceptionResponse> handleInternalServerException(InternalServerException ex) {
+        ExceptionResponse response = ExceptionResponse.builder()
+                .errorMessage(ex.getMessage())
+                .errorStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                .errorStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

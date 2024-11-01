@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class ApiResponse <T>{
     private String message;
     @JsonInclude(JsonInclude.Include.NON_NULL)

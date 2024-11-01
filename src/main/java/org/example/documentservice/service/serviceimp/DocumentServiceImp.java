@@ -4,6 +4,7 @@ import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.example.documentservice.client.WorkspaceClient;
 import org.example.documentservice.exception.ForbiddenException;
+import org.example.documentservice.exception.InternalServerException;
 import org.example.documentservice.exception.NotFoundException;
 import org.example.documentservice.model.entity.DocumentElasticEntity;
 import org.example.documentservice.model.entity.DocumentEntity;
@@ -21,7 +22,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,21 +42,29 @@ public class DocumentServiceImp implements DocumentService {
 		return SecurityContextHolder.getContext().getAuthentication().getName();
 	}
 
+	private String retrieveToken() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication instanceof JwtAuthenticationToken jwtAuthToken) {
+			return jwtAuthToken.getToken().getTokenValue();
+		}
+		return null;
+	}
+
+	public ApiResponse<UserWorkspaceResponse> getUserWorkspace(UUID userId, UUID workspaceId) {
+		String tokenValue = retrieveToken();
+		return workspaceClient.getUserByUserIdAndWorkspaceId("Bearer " + tokenValue, userId, workspaceId);
+	}
+
+
 	@Override
 	public DocumentElasticEntity createDocument(DocumentRequest documentRequest) {
-		ApiResponse<UserWorkspaceResponse> workspace;
-		try {
-			workspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), documentRequest.getWorkspaceId());
-			if (workspace.getPayload() == null) {
-				throw new NotFoundException("Workspace id " + documentRequest.getWorkspaceId() + " not found!");
-			}
-		} catch (FeignException.NotFound e) {
-			throw new NotFoundException("Workspace id " + documentRequest.getWorkspaceId() + " not found!");
+		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), documentRequest.getWorkspaceId());
+		if (workspace == null) {
+			throw new ForbiddenException("You don't have permission to access this workspace!");
 		}
 		if (!workspace.getPayload().getIsAdmin()) {
-			throw new ForbiddenException("User not allowed to create this document!");
+			throw new ForbiddenException("You are collaborator allowed to create this document!");
 		}
-
 		DocumentEntity document = modelMapper.map(documentRequest, DocumentEntity.class);
 		document.setDocumentId(UUID.randomUUID());
 		document.setIsPrivate(true);
@@ -71,19 +82,19 @@ public class DocumentServiceImp implements DocumentService {
 		UUID currentUserId = UUID.fromString(getCurrentUser());
 		Sort.Direction direction = sortDirection == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
 		String sortField = sortBy.getFieldName();
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,Sort.by(direction, sortField));
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,direction,sortField);
 		Page<DocumentElasticEntity> page = documentElasticRepository.findAll(pageable);
 		List<DocumentElasticEntity> lstDocs = new ArrayList<>();
 		for (DocumentElasticEntity document : page.getContent()) {
-			try {
-				ApiResponse<UserWorkspaceResponse> userInWorkspace = workspaceClient.getUserByUserIdAndWorkspaceId(currentUserId, document.getWorkspaceId());
-				if (userInWorkspace.getPayload() != null) {
-					lstDocs.add(document);
+			if (Boolean.FALSE.equals(document.getIsDeleted())) {
+				ApiResponse<UserWorkspaceResponse> userWorkspace = getUserWorkspace(currentUserId, document.getWorkspaceId());
+				if (userWorkspace != null) {
+					UserWorkspaceResponse userWorkspaceResponse = userWorkspace.getPayload();
+					if (userWorkspaceResponse != null) {
+						lstDocs.add(document);
+					}
 				}
-				if (userInWorkspace.getPayload() == null) {
-					return Collections.emptyList();
-				}
-			} catch (FeignException.NotFound ignored) {
+
 			}
 		}
 		return lstDocs;
@@ -93,14 +104,9 @@ public class DocumentServiceImp implements DocumentService {
 	@Override
 	public DocumentElasticEntity getDocument(UUID documentId) {
 		DocumentElasticEntity doc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		ApiResponse<UserWorkspaceResponse> workspace;
-		try {
-			workspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), doc.getWorkspaceId());
-			if (workspace.getPayload() == null) {
-				throw new NotFoundException("Document id " + doc.getWorkspaceId() + " not found!");
-			}
-		} catch (FeignException.NotFound ignored) {
-			throw new NotFoundException("Document id " + documentId + " not found!");
+		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), doc.getWorkspaceId());
+		if (workspace == null) {
+			throw new ForbiddenException("You don't have permission to access this document!");
 		}
 		return doc;
 	}
@@ -108,17 +114,12 @@ public class DocumentServiceImp implements DocumentService {
 	@Override
 	public Void deleteDocument(UUID documentId) {
 		DocumentElasticEntity elasticDocument = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		ApiResponse<UserWorkspaceResponse> workspace;
-		try {
-			workspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), elasticDocument.getWorkspaceId());
-			if (workspace.getPayload() == null) {
-				throw new NotFoundException("Document id " + elasticDocument.getWorkspaceId() + " not found!");
-			}
-		} catch (FeignException.NotFound e) {
-			throw new NotFoundException("Document id " + elasticDocument.getWorkspaceId() + " not found!");
+		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), elasticDocument.getWorkspaceId());
+		if (workspace == null) {
+			throw new ForbiddenException("You don't have permission to access this document!");
 		}
 		if (!workspace.getPayload().getIsAdmin()) {
-			throw new ForbiddenException("User not allowed to create this document!");
+			throw new ForbiddenException("You are collaborator allowed to create this document!");
 		}
 		documentRepository.deleteById(documentId);
 		documentElasticRepository.deleteById(documentId);
@@ -129,19 +130,13 @@ public class DocumentServiceImp implements DocumentService {
 	public Optional<DocumentElasticEntity> updateDocument(UUID documentId, DocumentUpdateRequest documentUpdateRequest) {
 		Optional<DocumentElasticEntity> elasticDoc = documentElasticRepository.findById(documentId);
 		elasticDoc.orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		ApiResponse<UserWorkspaceResponse> workspace;
-		try {
-			workspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), elasticDoc.get().getWorkspaceId());
-			if (workspace.getPayload() == null) {
-				throw new NotFoundException("Document id " + elasticDoc.get().getDocumentId() + " not found!");
-			}
-		} catch (FeignException.NotFound e) {
-			throw new NotFoundException("Document id " + elasticDoc.get().getDocumentId() + " not found!");
+		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), elasticDoc.get().getWorkspaceId());
+		if (workspace == null) {
+			throw new ForbiddenException("You don't have permission to access this document!");
 		}
 		if (!workspace.getPayload().getIsAdmin()) {
-			throw new ForbiddenException("User not allowed to update this document!");
+			throw new ForbiddenException("You are collaborator allowed to update this document!");
 		}
-
 		DocumentElasticEntity existDocument = elasticDoc.get();
 		existDocument.setTitle(documentUpdateRequest.getTitle());
 		existDocument.setContents(documentUpdateRequest.getContents());
@@ -155,20 +150,16 @@ public class DocumentServiceImp implements DocumentService {
 		return elasticDoc;
 	}
 
+
 	@Override
 	public Void updateStatusDocument(UUID documentId, Boolean isPrivate) {
 		DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		ApiResponse<UserWorkspaceResponse> workspace;
-		try {
-			workspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), existElasticDoc.getWorkspaceId());
-			if (workspace.getPayload() == null) {
-				throw new NotFoundException("Document id " + existElasticDoc.getDocumentId() + " not found!");
-			}
-		} catch (FeignException.NotFound e) {
-			throw new NotFoundException("Document id " + existElasticDoc.getDocumentId() + " not found!");
+		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), existElasticDoc.getWorkspaceId());
+		if (workspace == null) {
+			throw new ForbiddenException("You don't have permission to access this document!");
 		}
 		if (!workspace.getPayload().getIsAdmin()) {
-			throw new ForbiddenException("User not allowed to update this document!");
+			throw new ForbiddenException("You are collaborator allowed to update this document!");
 		}
 		existElasticDoc.setIsPrivate(isPrivate);
 		existElasticDoc.setUpdatedAt(LocalDateTime.now());
@@ -183,17 +174,12 @@ public class DocumentServiceImp implements DocumentService {
 	@Override
 	public Void updateStatusDelete(UUID documentId, Boolean isDelete) {
 		DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
-		ApiResponse<UserWorkspaceResponse> workspace;
-		try {
-			workspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), existElasticDoc.getWorkspaceId());
-			if (workspace.getPayload() == null) {
-				throw new NotFoundException("Document id " + existElasticDoc.getDocumentId() + " not found!");
-			}
-		} catch (FeignException.NotFound e) {
-			throw new NotFoundException("Document id " + existElasticDoc.getDocumentId() + " not found!");
+		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), existElasticDoc.getWorkspaceId());
+		if (workspace == null) {
+			throw new ForbiddenException("You don't have permission to access this document!");
 		}
 		if (!workspace.getPayload().getIsAdmin()) {
-			throw new ForbiddenException("User not allowed to update this document!");
+			throw new ForbiddenException("You are collaborator allowed to update this document!");
 		}
 		existElasticDoc.setIsDeleted(isDelete);
 		existElasticDoc.setUpdatedAt(LocalDateTime.now());
@@ -210,14 +196,12 @@ public class DocumentServiceImp implements DocumentService {
 		List<DocumentElasticEntity> lstDocs = documentElasticRepository.findAllByWorkspaceId(workspaceId);
 		List<DocumentElasticEntity> docs = new ArrayList<>();
 		for (DocumentElasticEntity document : lstDocs) {
-			try {
-				ApiResponse<UserWorkspaceResponse> userInWorkspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), document.getWorkspaceId());
-				if (userInWorkspace.getPayload() != null) {
-					docs.add(document);
-				} else {
-					throw new NotFoundException("Document id " + document.getDocumentId() + " not found!");
-				}
-			} catch (FeignException.NotFound ignored) {
+			ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), document.getWorkspaceId());
+			if (workspace == null) {
+				throw new ForbiddenException("You don't have permission to access this document!");
+			}
+			if (workspace.getPayload() != null) {
+				docs.add(document);
 			}
 		}
 		return docs;
@@ -229,17 +213,12 @@ public class DocumentServiceImp implements DocumentService {
 		if (lstDoc.isEmpty()) {
 			throw new NotFoundException("Workspace id " + workspaceId + " not found!");
 		}
-		ApiResponse<UserWorkspaceResponse> workspace;
-		try {
-			workspace = workspaceClient.getUserByUserIdAndWorkspaceId(UUID.fromString(getCurrentUser()), lstDoc.getFirst().getWorkspaceId());
-			if (workspace.getPayload() == null) {
-				throw new NotFoundException("Document id " + lstDoc.getFirst().getWorkspaceId() + " not found!");
-			}
-		} catch (FeignException.NotFound e) {
-			throw new NotFoundException("Document id " + lstDoc.getFirst().getWorkspaceId() + " not found!");
+		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(UUID.fromString(getCurrentUser()), lstDoc.getFirst().getWorkspaceId());
+		if (workspace == null) {
+			throw new ForbiddenException("You don't have permission to access this document!");
 		}
 		if (!workspace.getPayload().getIsAdmin()) {
-			throw new ForbiddenException("User not allowed to delete this document!");
+			throw new ForbiddenException("You are collaborator don't allowed to delete this document!");
 		}
 		documentRepository.deleteByWorkspaceId(workspaceId);
 		documentElasticRepository.deleteByWorkspaceId(workspaceId);
@@ -249,9 +228,31 @@ public class DocumentServiceImp implements DocumentService {
 	@Override
 	public DocumentElasticEntity getPublishDocument(UUID documentId) {
 		DocumentElasticEntity publishDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		if (publishDoc.getIsPrivate().equals(true)) {
-			throw new ForbiddenException("Document is private!");
+		if (Boolean.TRUE.equals(publishDoc.getIsPrivate())) {
+			throw new ForbiddenException("You don't have permission to access this document is private!");
 		}
 		return publishDoc;
+	}
+
+	@Override
+	public List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection) {
+		Sort.Direction direction = sortDirection == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
+		String sortField = sortBy.getFieldName();
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(direction, sortField));
+		Page<DocumentElasticEntity> page = documentElasticRepository.findAll(pageable);
+		List<DocumentElasticEntity> docs = new ArrayList<>();
+		for (DocumentElasticEntity document : page.getContent()) {
+			if (Boolean.TRUE.equals(document.getIsDeleted())) {
+				UserWorkspaceResponse userWorkspaceResponse;
+				ApiResponse<UserWorkspaceResponse> userWorkspace = getUserWorkspace(UUID.fromString(getCurrentUser()), document.getWorkspaceId());
+				if (userWorkspace != null) {
+					userWorkspaceResponse = userWorkspace.getPayload();
+					if (userWorkspaceResponse != null && userWorkspaceResponse.getIsAdmin().equals(true)) {
+						docs.add(document);
+					}
+				}
+			}
+		}
+		return docs;
 	}
 }

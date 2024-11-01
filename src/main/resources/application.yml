@@ -3,20 +3,16 @@ spring:
     name: document-service
   data:
     mongodb:
-      uri: mongodb://localhost:27017
-      username: mongodb
-      password: 2003
-      database: stacknote
-  #      uri: mongodb://188.166.255.182:28085
-#      database: document-db
+      uri: mongodb://188.166.255.182:28085
+      database: document-db
+
   # elasticsearch
   elasticsearch:
-    uris: http://localhost:9200
-  #    uris: http://209.38.56.20:9200
-#    username: stacknote
-#    password: stacknote
-#    connection-timeout: 10s
-#    socket-timeout: 30s
+    uris: http://209.38.56.20:9200
+    username: stacknote
+    password: stacknote
+    connection-timeout: 10s
+    socket-timeout: 30s
 
   #Resource server configuration
   security:
@@ -25,6 +21,30 @@ spring:
         jwt:
           issuer-uri: https://keycloak.jelay.site/realms/stack-notes
           jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
+
+# circuit breaker with feign
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      compression:
+        response:
+          enabled: true
+        request:
+          enabled: true
+resilience4j:
+  circuitbreaker:
+    instances:
+      WorkspaceClientgetUserByUserIdAndWorkspaceIdStringUUIDUUID:
+        register-health-indicator: true
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 20
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        sliding-window-type: COUNT_BASED
+
 
 # Keycloak configuration
 keycloak:
@@ -43,6 +63,10 @@ eureka:
   instance:
     prefer-ip-address: true
 
+# feign client
+workspace-service:
+  url: https://workspace-service.jelay.site
+
 # Swagger configuration
 springdoc:
   swagger-ui:
@@ -57,5 +81,12 @@ logging:
     org.springframework.web: debug
     org.springframework.data.elasticsearch: DEBUG
     org.elasticsearch: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, circuitbreakers
+
 server:
   port: 8085
