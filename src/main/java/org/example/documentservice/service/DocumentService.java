@@ -16,11 +16,10 @@ public interface DocumentService {
     DocumentElasticEntity getDocument(UUID documentId);
     Void deleteDocument(UUID documentId);
     Optional<DocumentElasticEntity> updateDocument(UUID documentId, DocumentUpdateRequest documentUpdateRequest);
-    Void updateStatusDocument(UUID documentId, Boolean isPrivate);
-    Void updateStatusDelete(UUID documentId, Boolean isDelete);
+    Void updateStatusDocument(UUID documentId);
+    Void updateStatusDelete(UUID documentId);
     List<DocumentElasticEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
     Void deleteDocumentByWorkspaceId(UUID workspaceId);
-    DocumentElasticEntity getPublishDocument(UUID documentId);
     List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection);
 
 }

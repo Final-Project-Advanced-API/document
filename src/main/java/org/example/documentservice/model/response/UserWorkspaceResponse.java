@@ -9,6 +9,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 public class UserWorkspaceResponse {
     private UUID userRoleId;
     private UUID userId;

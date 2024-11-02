@@ -1,4 +1,6 @@
 package org.example.documentservice.model.entity;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 import lombok.*;
@@ -25,6 +27,9 @@ public class DocumentElasticEntity {
 	private Boolean isPrivate;
 	@Field(type = FieldType.Boolean)
 	private Boolean isDeleted;
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	@CreatedBy
+	private UUID createdBy;
 	@Field(type = FieldType.Date, format = DateFormat.strict_date_hour_minute_second_millis)
 	private LocalDateTime createdAt;
 	@Field(type = FieldType.Date, format = DateFormat.strict_date_hour_minute_second_millis)
