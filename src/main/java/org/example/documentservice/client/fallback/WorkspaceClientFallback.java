@@ -1,8 +1,11 @@
 package org.example.documentservice.client.fallback;
+
 import org.example.documentservice.client.WorkspaceClient;
 import org.example.documentservice.model.response.ApiResponse;
 import org.example.documentservice.model.response.UserWorkspaceResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+
 import java.util.UUID;
 
 

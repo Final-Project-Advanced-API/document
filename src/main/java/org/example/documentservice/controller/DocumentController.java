@@ -93,10 +93,10 @@ public class DocumentController {
 
     @PutMapping("/{documentId}/status-private")
     @Operation(summary = "update status private or public document")
-    public ResponseEntity<?> updateStatusDocument(@PathVariable UUID documentId, @RequestParam(defaultValue = "true") Boolean isPrivate) {
+    public ResponseEntity<?> updateStatusDocument(@PathVariable UUID documentId) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Update status document successfully")
-                .payload(documentService.updateStatusDocument(documentId, isPrivate))
+                .payload(documentService.updateStatusDocument(documentId))
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
@@ -106,10 +106,10 @@ public class DocumentController {
 
     @PutMapping("/{documentId}/status-trash")
     @Operation(summary = "update status trash or not document")
-    public ResponseEntity<?> updateStatusDelete(@PathVariable UUID documentId, @RequestParam(defaultValue = "false") Boolean isDelete) {
+    public ResponseEntity<?> updateStatusDelete(@PathVariable UUID documentId) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Update status document successfully")
-                .payload(documentService.updateStatusDelete(documentId, isDelete))
+                .payload(documentService.updateStatusDelete(documentId))
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
@@ -136,19 +136,6 @@ public class DocumentController {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Delete document by workspace id successfully")
                 .payload(documentService.deleteDocumentByWorkspaceId(workspaceId))
-                .status(HttpStatus.OK)
-                .statusCode(HttpStatus.OK.value())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/{documentId}/publish")
-    @Operation(summary = "get publish document")
-    public ResponseEntity<?> getPublishDocument(@PathVariable UUID documentId) {
-        ApiResponse<?> response = ApiResponse.builder()
-                .message("Get publish document successfully")
-                .payload(documentService.getPublishDocument(documentId))
                 .status(HttpStatus.OK)
                 .statusCode(HttpStatus.OK.value())
                 .timestamp(LocalDateTime.now())
