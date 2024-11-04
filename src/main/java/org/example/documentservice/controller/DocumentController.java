@@ -94,7 +94,7 @@ public class DocumentController {
 
     @PutMapping("/{documentId}/status-private")
     @Operation(summary = "update status private or public document")
-    public ResponseEntity<?> updateStatusDocument(@PathVariable List<UUID> documentId) {
+    public ResponseEntity<?> updateStatusDocument(@PathVariable UUID documentId) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Update status document successfully")
                 .payload(documentService.updateStatusDocument(documentId))

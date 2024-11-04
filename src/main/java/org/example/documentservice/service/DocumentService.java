@@ -16,7 +16,7 @@ public interface DocumentService {
     DocumentElasticEntity getDocument(UUID documentId);
     Void deleteDocument(List<UUID> documentId);
     Optional<DocumentElasticEntity> updateDocument(UUID documentId, DocumentUpdateRequest documentUpdateRequest);
-    Void updateStatusDocument(List<UUID> documentId);
+    Void updateStatusDocument(UUID documentId);
     Void updateStatusDelete(List<UUID> documentId);
     List<DocumentElasticEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
     Void deleteDocumentByWorkspaceId(UUID workspaceId);

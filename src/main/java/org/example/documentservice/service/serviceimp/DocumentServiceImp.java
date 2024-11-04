@@ -151,13 +151,13 @@ public class DocumentServiceImp implements DocumentService {
 
 
 	@Override
-	public Void updateStatusDocument(List<UUID> documentId) {
-		documentId.forEach(id -> {
-			DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
+	public Void updateStatusDocument(UUID documentId) {
+
+			DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
 			if (!existElasticDoc.getCreatedBy().equals(getCurrentUser())) {
 				throw new ForbiddenException("You don't have permission to update this document!");
 			}
-			DocumentEntity existDoc = documentRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
+			DocumentEntity existDoc = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
 			if (Boolean.TRUE.equals(existElasticDoc.getIsPrivate())) {
 				existElasticDoc.setIsPrivate(false);
 				existDoc.setIsPrivate(false);
@@ -169,7 +169,7 @@ public class DocumentServiceImp implements DocumentService {
 			existDoc.setUpdatedAt(LocalDateTime.now());
 			documentRepository.save(existDoc);
 			documentElasticRepository.save(existElasticDoc);
-		});
+
 		return null;
 	}
 
