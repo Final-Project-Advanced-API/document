@@ -1,10 +1,8 @@
 package org.example.documentservice.service.serviceimp;
 
-import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.example.documentservice.client.WorkspaceClient;
 import org.example.documentservice.exception.ForbiddenException;
-import org.example.documentservice.exception.InternalServerException;
 import org.example.documentservice.exception.NotFoundException;
 import org.example.documentservice.model.entity.DocumentElasticEntity;
 import org.example.documentservice.model.entity.DocumentEntity;
@@ -61,7 +59,7 @@ public class DocumentServiceImp implements DocumentService {
 	public DocumentElasticEntity createDocument(DocumentRequest documentRequest) {
 		ApiResponse<UserWorkspaceResponse> workspace = getUserWorkspace(getCurrentUser(), documentRequest.getWorkspaceId());
 		if (workspace == null) {
-			throw new NotFoundException("Workspace not found!");
+			throw new NotFoundException("Workspace id not found!");
 		} else {
 			if (!workspace.getPayload().getIsAdmin()) {
 				throw new ForbiddenException("You don't have permission to create this document!");
@@ -97,7 +95,6 @@ public class DocumentServiceImp implements DocumentService {
 						lstDocs.add(document);
 					}
 				}
-
 			}
 		}
 		lstDocs.forEach(i -> i.setCreatedBy(null));
@@ -119,13 +116,15 @@ public class DocumentServiceImp implements DocumentService {
 	}
 
 	@Override
-	public Void deleteDocument(UUID documentId) {
-		DocumentElasticEntity elasticDocument = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		if (!elasticDocument.getCreatedBy().equals(getCurrentUser())) {
-			throw new ForbiddenException("You don't have permission to delete this document!");
-		}
-		documentRepository.deleteById(documentId);
-		documentElasticRepository.deleteById(documentId);
+	public Void deleteDocument(List<UUID> documentId) {
+		documentId.forEach(id -> {
+			DocumentElasticEntity elasticDocument = documentElasticRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
+			if (!elasticDocument.getCreatedBy().equals(getCurrentUser())) {
+				throw new ForbiddenException("You don't have permission to delete this document!");
+			}
+			documentRepository.deleteById(id);
+			documentElasticRepository.deleteById(id);
+		});
 		return null;
 	}
 
@@ -152,44 +151,48 @@ public class DocumentServiceImp implements DocumentService {
 
 
 	@Override
-	public Void updateStatusDocument(UUID documentId) {
-		DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		if (!existElasticDoc.getCreatedBy().equals(getCurrentUser())) {
-			throw new ForbiddenException("You don't have permission to update this document!");
-		}
-		DocumentEntity existDoc = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		if (Boolean.TRUE.equals(existElasticDoc.getIsPrivate())) {
-			existElasticDoc.setIsPrivate(false);
-			existDoc.setIsPrivate(false);
-		} else {
-			existElasticDoc.setIsPrivate(true);
-			existDoc.setIsPrivate(true);
-		}
-		existElasticDoc.setUpdatedAt(LocalDateTime.now());
-		existDoc.setUpdatedAt(LocalDateTime.now());
-		documentRepository.save(existDoc);
-		documentElasticRepository.save(existElasticDoc);
+	public Void updateStatusDocument(List<UUID> documentId) {
+		documentId.forEach(id -> {
+			DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
+			if (!existElasticDoc.getCreatedBy().equals(getCurrentUser())) {
+				throw new ForbiddenException("You don't have permission to update this document!");
+			}
+			DocumentEntity existDoc = documentRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
+			if (Boolean.TRUE.equals(existElasticDoc.getIsPrivate())) {
+				existElasticDoc.setIsPrivate(false);
+				existDoc.setIsPrivate(false);
+			} else {
+				existElasticDoc.setIsPrivate(true);
+				existDoc.setIsPrivate(true);
+			}
+			existElasticDoc.setUpdatedAt(LocalDateTime.now());
+			existDoc.setUpdatedAt(LocalDateTime.now());
+			documentRepository.save(existDoc);
+			documentElasticRepository.save(existElasticDoc);
+		});
 		return null;
 	}
 
 	@Override
-	public Void updateStatusDelete(UUID documentId) {
-		DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
-		if (!existElasticDoc.getCreatedBy().equals(getCurrentUser())) {
-			throw new ForbiddenException("You don't have permission to update this document!");
-		}
-		DocumentEntity existDoc = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
-		if (Boolean.FALSE.equals(existElasticDoc.getIsDeleted())) {
-			existElasticDoc.setIsDeleted(true);
-			existDoc.setIsDeleted(true);
-		} else {
-			existElasticDoc.setIsDeleted(false);
-			existDoc.setIsDeleted(false);
-		}
-		existElasticDoc.setUpdatedAt(LocalDateTime.now());
-		existDoc.setUpdatedAt(LocalDateTime.now());
-		documentElasticRepository.save(existElasticDoc);
-		documentRepository.save(existDoc);
+	public Void updateStatusDelete(List<UUID> documentId) {
+		documentId.forEach(id->{
+			DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
+			if (!existElasticDoc.getCreatedBy().equals(getCurrentUser())) {
+				throw new ForbiddenException("You don't have permission to update this document!");
+			}
+			DocumentEntity existDoc = documentRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
+			if (Boolean.FALSE.equals(existElasticDoc.getIsDeleted())) {
+				existElasticDoc.setIsDeleted(true);
+				existDoc.setIsDeleted(true);
+			} else {
+				existElasticDoc.setIsDeleted(false);
+				existDoc.setIsDeleted(false);
+			}
+			existElasticDoc.setUpdatedAt(LocalDateTime.now());
+			existDoc.setUpdatedAt(LocalDateTime.now());
+			documentElasticRepository.save(existElasticDoc);
+			documentRepository.save(existDoc);
+		});
 		return null;
 	}
 

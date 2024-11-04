@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -67,7 +68,7 @@ public class DocumentController {
 
     @DeleteMapping("/{documentId}")
     @Operation(summary = "delete document")
-    public ResponseEntity<?> deleteDocument(@PathVariable UUID documentId) {
+    public ResponseEntity<?> deleteDocument(@PathVariable List<UUID> documentId) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Delete document successfully")
                 .payload(documentService.deleteDocument(documentId))
@@ -93,7 +94,7 @@ public class DocumentController {
 
     @PutMapping("/{documentId}/status-private")
     @Operation(summary = "update status private or public document")
-    public ResponseEntity<?> updateStatusDocument(@PathVariable UUID documentId) {
+    public ResponseEntity<?> updateStatusDocument(@PathVariable List<UUID> documentId) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Update status document successfully")
                 .payload(documentService.updateStatusDocument(documentId))
@@ -106,7 +107,7 @@ public class DocumentController {
 
     @PutMapping("/{documentId}/status-trash")
     @Operation(summary = "update status trash or not document")
-    public ResponseEntity<?> updateStatusDelete(@PathVariable UUID documentId) {
+    public ResponseEntity<?> updateStatusDelete(@PathVariable List<UUID> documentId) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Update status document successfully")
                 .payload(documentService.updateStatusDelete(documentId))

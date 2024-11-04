@@ -14,10 +14,10 @@ public interface DocumentService {
     Object createDocument(DocumentRequest documentRequest);
     List<DocumentElasticEntity> getAllDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection);
     DocumentElasticEntity getDocument(UUID documentId);
-    Void deleteDocument(UUID documentId);
+    Void deleteDocument(List<UUID> documentId);
     Optional<DocumentElasticEntity> updateDocument(UUID documentId, DocumentUpdateRequest documentUpdateRequest);
-    Void updateStatusDocument(UUID documentId);
-    Void updateStatusDelete(UUID documentId);
+    Void updateStatusDocument(List<UUID> documentId);
+    Void updateStatusDelete(List<UUID> documentId);
     List<DocumentElasticEntity> getAllDocumentByWorkspaceId(UUID workspaceId);
     Void deleteDocumentByWorkspaceId(UUID workspaceId);
     List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection);
