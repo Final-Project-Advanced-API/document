@@ -235,13 +235,7 @@ public class DocumentServiceImp implements DocumentService {
 		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,Sort.by(direction, sortField));
 		Page<DocumentElasticEntity> page = documentElasticRepository.findAll(pageable);
 		List<DocumentElasticEntity> docs = new ArrayList<>();
-		for (DocumentElasticEntity document : page.getContent()) {
-			if (Boolean.TRUE.equals(document.getIsDeleted())) {
-				if (document.getCreatedBy().equals(getCurrentUser())) {
-					docs.add(document);
-				}
-			}
-		}
+		page.stream().filter(i->i.getIsDeleted().equals(true) && i.getCreatedBy().equals(getCurrentUser())).forEach(docs::add);
 		docs.forEach(i -> i.setCreatedBy(null));
 		return docs;
 	}

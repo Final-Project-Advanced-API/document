@@ -19,7 +19,7 @@ public class DocumentElasticEntity {
 	private UUID documentId;
 	@Field(type = FieldType.Keyword)
 	private UUID workspaceId;
-	@Field(type = FieldType.Text,fielddata = true,name = "title")
+	@Field(type = FieldType.Text,name = "title")
 	private String title;
 	@Field(type = FieldType.Object)
 	private List<Object> contents;
