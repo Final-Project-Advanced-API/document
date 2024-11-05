@@ -240,7 +240,7 @@ The Document API provides functionality for managing documents within workspaces
 - **Method**: `DELETE`
 - **Description**: Deletes a document by its ID. Only an admin of the workspace that contains this document can delete it.
 - **Path Parameters**:
-  - `documentId`: The UUID of the document.
+  - `documentId`: The list UUID of the document.
 - **Response**:
 
     ```json
@@ -362,7 +362,7 @@ The Document API provides functionality for managing documents within workspaces
 - **Method**: `PUT`
 - **Description**: Updates the trash status of a document. Only an admin of the workspace that contains this document can update it.
 - **Path Parameters**:
-  - `documentId`: The UUID of the document.
+  - `documentId`: The list UUID of the document.
 - **Response**:
 
     ```json
