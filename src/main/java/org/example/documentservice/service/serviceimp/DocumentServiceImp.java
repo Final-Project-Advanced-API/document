@@ -20,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -122,8 +121,10 @@ public class DocumentServiceImp implements DocumentService {
 			if (!elasticDocument.getCreatedBy().equals(getCurrentUser())) {
 				throw new ForbiddenException("You don't have permission to delete this document!");
 			}
-			documentRepository.deleteById(id);
-			documentElasticRepository.deleteById(id);
+			if (Boolean.TRUE.equals(elasticDocument.getIsDeleted())) {
+				documentRepository.deleteById(id);
+				documentElasticRepository.deleteById(id);
+			}
 		});
 		return null;
 	}
@@ -152,30 +153,28 @@ public class DocumentServiceImp implements DocumentService {
 
 	@Override
 	public Void updateStatusDocument(UUID documentId) {
-
-			DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-			if (!existElasticDoc.getCreatedBy().equals(getCurrentUser())) {
-				throw new ForbiddenException("You don't have permission to update this document!");
-			}
-			DocumentEntity existDoc = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-			if (Boolean.TRUE.equals(existElasticDoc.getIsPrivate())) {
-				existElasticDoc.setIsPrivate(false);
-				existDoc.setIsPrivate(false);
-			} else {
-				existElasticDoc.setIsPrivate(true);
-				existDoc.setIsPrivate(true);
-			}
-			existElasticDoc.setUpdatedAt(LocalDateTime.now());
-			existDoc.setUpdatedAt(LocalDateTime.now());
-			documentRepository.save(existDoc);
-			documentElasticRepository.save(existElasticDoc);
-
+		DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
+		if (!existElasticDoc.getCreatedBy().equals(getCurrentUser())) {
+			throw new ForbiddenException("You don't have permission to update this document!");
+		}
+		DocumentEntity existDoc = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
+		if (Boolean.TRUE.equals(existElasticDoc.getIsPrivate())) {
+			existElasticDoc.setIsPrivate(false);
+			existDoc.setIsPrivate(false);
+		} else {
+			existElasticDoc.setIsPrivate(true);
+			existDoc.setIsPrivate(true);
+		}
+		existElasticDoc.setUpdatedAt(LocalDateTime.now());
+		existDoc.setUpdatedAt(LocalDateTime.now());
+		documentRepository.save(existDoc);
+		documentElasticRepository.save(existElasticDoc);
 		return null;
 	}
 
 	@Override
 	public Void updateStatusDelete(List<UUID> documentId) {
-		documentId.forEach(id->{
+		documentId.forEach(id -> {
 			DocumentElasticEntity existElasticDoc = documentElasticRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
 			if (!existElasticDoc.getCreatedBy().equals(getCurrentUser())) {
 				throw new ForbiddenException("You don't have permission to update this document!");

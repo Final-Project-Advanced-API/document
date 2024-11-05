@@ -25,7 +25,7 @@ import java.util.UUID;
 @SecurityRequirement(name = "stack-notes")
 @CrossOrigin
 public class DocumentController {
-    private DocumentService documentService;
+    private final DocumentService documentService;
 
     @PostMapping
     @Operation(summary = "create document")
