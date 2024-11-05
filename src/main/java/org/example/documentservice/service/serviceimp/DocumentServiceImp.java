@@ -83,7 +83,7 @@ public class DocumentServiceImp implements DocumentService {
 	public List<DocumentElasticEntity> getAllDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection) {
 		Sort.Direction direction = sortDirection == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
 		String sortField = sortBy.getFieldName();
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, direction, sortField);
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,Sort.by(direction, sortField));
 		Page<DocumentElasticEntity> page = documentElasticRepository.findAll(pageable);
 		List<DocumentElasticEntity> lstDocs = new ArrayList<>();
 		for (DocumentElasticEntity document : page.getContent()) {
@@ -232,7 +232,7 @@ public class DocumentServiceImp implements DocumentService {
 	public List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortByTrash sortBy, SortDirection sortDirection) {
 		Sort.Direction direction = sortDirection == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
 		String sortField = sortBy.getFieldName();
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,direction, sortField);
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,Sort.by(direction, sortField));
 		Page<DocumentElasticEntity> page = documentElasticRepository.findAll(pageable);
 		List<DocumentElasticEntity> docs = new ArrayList<>();
 		for (DocumentElasticEntity document : page.getContent()) {
