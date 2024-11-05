@@ -7,6 +7,7 @@ import org.example.documentservice.exception.NotFoundException;
 import org.example.documentservice.model.entity.DocumentElasticEntity;
 import org.example.documentservice.model.entity.DocumentEntity;
 import org.example.documentservice.model.enums.SortBy;
+import org.example.documentservice.model.enums.SortByTrash;
 import org.example.documentservice.model.enums.SortDirection;
 import org.example.documentservice.model.request.DocumentRequest;
 import org.example.documentservice.model.request.DocumentUpdateRequest;
@@ -121,10 +122,11 @@ public class DocumentServiceImp implements DocumentService {
 			if (!elasticDocument.getCreatedBy().equals(getCurrentUser())) {
 				throw new ForbiddenException("You don't have permission to delete this document!");
 			}
-			if (Boolean.TRUE.equals(elasticDocument.getIsDeleted())) {
-				documentRepository.deleteById(id);
-				documentElasticRepository.deleteById(id);
+			if (elasticDocument.getIsDeleted().equals(false)) {
+				throw new ForbiddenException("You don't have permission to delete this document because it is not trash!");
 			}
+			documentRepository.deleteById(id);
+			documentElasticRepository.deleteById(id);
 		});
 		return null;
 	}
@@ -158,7 +160,7 @@ public class DocumentServiceImp implements DocumentService {
 			throw new ForbiddenException("You don't have permission to update this document!");
 		}
 		DocumentEntity existDoc = documentRepository.findById(documentId).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found!"));
-		if (Boolean.TRUE.equals(existElasticDoc.getIsPrivate())) {
+		if (existElasticDoc.getIsPrivate().equals(true)) {
 			existElasticDoc.setIsPrivate(false);
 			existDoc.setIsPrivate(false);
 		} else {
@@ -180,7 +182,7 @@ public class DocumentServiceImp implements DocumentService {
 				throw new ForbiddenException("You don't have permission to update this document!");
 			}
 			DocumentEntity existDoc = documentRepository.findById(id).orElseThrow(() -> new NotFoundException("Document id " + documentId + " not found"));
-			if (Boolean.FALSE.equals(existElasticDoc.getIsDeleted())) {
+			if (existElasticDoc.getIsDeleted().equals(false)) {
 				existElasticDoc.setIsDeleted(true);
 				existDoc.setIsDeleted(true);
 			} else {
@@ -227,10 +229,10 @@ public class DocumentServiceImp implements DocumentService {
 	}
 
 	@Override
-	public List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortBy sortBy, SortDirection sortDirection) {
+	public List<DocumentElasticEntity> getAllTrashDocument(Integer pageNo, Integer pageSize, SortByTrash sortBy, SortDirection sortDirection) {
 		Sort.Direction direction = sortDirection == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
 		String sortField = sortBy.getFieldName();
-		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(direction, sortField));
+		Pageable pageable = PageRequest.of(pageNo - 1, pageSize,direction, sortField);
 		Page<DocumentElasticEntity> page = documentElasticRepository.findAll(pageable);
 		List<DocumentElasticEntity> docs = new ArrayList<>();
 		for (DocumentElasticEntity document : page.getContent()) {

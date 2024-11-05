@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.example.documentservice.model.enums.SortBy;
+import org.example.documentservice.model.enums.SortByTrash;
 import org.example.documentservice.model.enums.SortDirection;
 import org.example.documentservice.model.request.DocumentRequest;
 import org.example.documentservice.model.request.DocumentUpdateRequest;
@@ -146,7 +147,7 @@ public class DocumentController {
 
     @GetMapping("/get-trash")
     @Operation(summary = "get all trash document")
-    public ResponseEntity<?> getAllTrashDocument(@RequestParam(defaultValue = "1") @Min(value = 1, message = "Must bigger than 0") Integer pageNo, @RequestParam(defaultValue = "5") @Min(value = 1, message = "Must bigger than 0") Integer pageSize, @RequestParam SortBy sortBy, SortDirection sortDirection) {
+    public ResponseEntity<?> getAllTrashDocument(@RequestParam(defaultValue = "1") @Min(value = 1, message = "Must bigger than 0") Integer pageNo, @RequestParam(defaultValue = "6") @Min(value = 1, message = "Must bigger than 0") Integer pageSize, @RequestParam SortByTrash sortBy, SortDirection sortDirection) {
         ApiResponse<?> response = ApiResponse.builder()
                 .message("Get all trash document successfully")
                 .payload(documentService.getAllTrashDocument(pageNo,pageSize,sortBy,sortDirection))
